@@ -31,14 +31,17 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          if [ -f hash.txt ] && cmp -s hash.txt new_hash.txt; then
+          if [ ! -f hash.txt ]; then
+            echo "First run or cache miss detected. Treating as change."
+            echo "changed=true" >> $GITHUB_ENV
+          elif cmp -s hash.txt new_hash.txt; then
             echo "No changes detected."
             echo "changed=false" >> $GITHUB_ENV
           else
             echo "Changes detected."
             echo "changed=true" >> $GITHUB_ENV
-            mv new_hash.txt hash.txt
           fi
+          mv new_hash.txt hash.txt
 
       - name: Save new hash to cache
         if: env.changed == 'true'
@@ -58,5 +61,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add adfilt
-          git commit -m "Adfilt definition update"
+          git commit -m "Adfilt Definition Update"
           git push
