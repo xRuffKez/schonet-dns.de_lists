@@ -1,4 +1,4 @@
-||wpad.*^
+|wpad.*^
 |eum.instana.*^
 ||*.sgtm.advgo.net^
 ||abbp1.*^
@@ -10,7 +10,7 @@
 ||ads2.*^
 ||adcache.*^
 ||adext.*^
-||netseer-ipaddr-assoc.*.fbcdn.net^
+|netseer-ipaddr-assoc.*.fbcdn.net^
 ||cdn.*ads.*^
 ||cdn.*tracking.*^
 ||cdn.*analytics.*^
@@ -35,7 +35,7 @@
 |*countly*.*^
 |applytics.*.*^
 |sentry.*.*^
-||bugly.*.*^
-||bugsnag.*.*^
-||insight.*.*^
+|bugly.*.*^
+|bugsnag.*.*^
+|insight.*.*^
 |amplitude.*.*^
