@@ -5,6 +5,13 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch:
 
+name: Update AdFilt File
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at midnight UTC
+  workflow_dispatch:
+
 jobs:
   update-file:
     runs-on: ubuntu-latest
@@ -15,34 +22,40 @@ jobs:
       - name: Set up caching
         uses: actions/cache@v3
         with:
-          path: adfilt
-          key: adfilt-${{ runner.os }}-${{ github.run_id }}
-          restore-keys: adfilt-${{ runner.os }}
+          path: hash.txt
+          key: hash-${{ runner.os }}-${{ github.run_id }}
+          restore-keys: hash-${{ runner.os }}
 
       - name: Download latest file
         run: |
           curl -s -o AntiMalwareAdGuardHome.txt "https://raw.githubusercontent.com/DandelionSprout/adfilt/refs/heads/master/Alternate%20versions%20Anti-Malware%20List/AntiMalwareAdGuardHome.txt"
 
-      - name: Extract relevant lines
+      - name: Compute hash
         run: |
-          grep -E '^\|\|.*\^$' AntiMalwareAdGuardHome.txt | sort -u > adfilt
+          sha256sum AntiMalwareAdGuardHome.txt | awk '{print $1}' > new_hash.txt
 
       - name: Check for changes
         id: check_changes
         run: |
-          if git diff --quiet adfilt; then
+          if [ -f hash.txt ] && cmp -s hash.txt new_hash.txt; then
             echo "No changes detected."
             echo "changed=false" >> $GITHUB_ENV
           else
             echo "Changes detected."
             echo "changed=true" >> $GITHUB_ENV
           fi
+          mv new_hash.txt hash.txt
+
+      - name: Extract relevant lines
+        if: env.changed == 'true'
+        run: |
+          grep -E '^\|\|.*\^$' AntiMalwareAdGuardHome.txt | sort -u > adfilt
 
       - name: Commit and push changes
         if: env.changed == 'true'
         run: |
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
-          git add adfilt
-          git commit -m "Updated adfilt file"
+          git add adfilt hash.txt
+          git commit -m "Updated adfilt file due to URL change"
           git push
