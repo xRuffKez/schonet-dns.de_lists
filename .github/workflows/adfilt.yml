@@ -12,13 +12,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up caching
-        id: cache-hash
+      - name: Restore hash from cache
+        id: restore-cache
         uses: actions/cache@v3
         with:
           path: hash.txt
           key: hash-${{ runner.os }}
           restore-keys: hash-${{ runner.os }}
+
+      - name: Verify cache restoration
+        run: |
+          if [ -f hash.txt ]; then
+            echo "Cache restored successfully."
+            cat hash.txt
+          else
+            echo "No cache found. Creating a new hash file."
+            touch hash.txt
+          fi
 
       - name: Download latest file
         run: |
@@ -31,7 +41,7 @@ jobs:
       - name: Check for changes
         id: check_changes
         run: |
-          if [ ! -f hash.txt ]; then
+          if [ ! -s hash.txt ]; then
             echo "First run or cache miss detected. Treating as change."
             echo "changed=true" >> $GITHUB_ENV
           elif cmp -s hash.txt new_hash.txt; then
@@ -61,5 +71,5 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
           git add adfilt
-          git commit -m "Adfilt Definition Update"
+          git commit -m "Updated adfilt file due to URL change"
           git push
