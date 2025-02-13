@@ -18,7 +18,8 @@ jobs:
         with:
           path: hash.txt
           key: hash-${{ runner.os }}
-          restore-keys: hash-${{ runner.os }}
+          restore-keys: |
+            hash-${{ runner.os }}
 
       - name: Verify cache restoration
         run: |
@@ -26,7 +27,7 @@ jobs:
             echo "Cache restored successfully."
             cat hash.txt
           else
-            echo "No cache found. Creating a new hash file."
+            echo "No cache found. Creating an empty hash file."
             touch hash.txt
           fi
 
